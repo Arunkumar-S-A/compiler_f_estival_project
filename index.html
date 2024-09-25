@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online IDE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        #code-area {
+            width: 50%;
+            height: 100%;
+            border-right: 1px solid #ddd;
+            padding: 10px;
+        }
+        #input-output-area {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        #input {
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            resize: none;
+        }
+        #output {
+            flex: 1;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f8f8;
+            overflow-y: auto;
+        }
+        .CodeMirror {
+            height: 100%;
+            width: 100%;
+        }
+        h3 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+        <h1>Online IDE</h1>
+        <form id="myform" name="myform" method="post" action="/compilecode">
+            <div id="container">
+                <div id="code-area">
+                    <h3>Code</h3>
+                    <textarea id="code" name="code" ></textarea>
+                </div>
+                <div id="input-output-area">
+                    <div id="input">
+                        <h3>Input (optional)</h3>
+                        <textarea rows="5" id="inputText" name="inputText" placeholder="Optional input"></textarea>
+                    </div>
+                    <div id="output">
+                        <h3>Output</h3>
+                        <pre id="outputText"></pre>
+                    </div>
+                </div>
+            </div>
+            <label for="lang">Language:</label>
+            <select name="lang" id="lang" required>
+                <option value="C">C</option>
+                <option value="C++" selected>C++</option>
+                <option value="Java">Java</option>
+                <option value="Python">Python</option>
+            </select>
+            <br/>
+            <label>Compile with Input:</label>
+            <input type="radio" name="inputRadio" value="true" checked> Yes
+            <input type="radio" name="inputRadio" value="false"> No
+            <br/><br/>
+            <input type="submit" value="Run"/>
+        </form>
+        <script>
+            var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                lineNumbers: true,
+                mode: "text/x-c++src",
+            });
+            document.getElementById('lang').addEventListener('change', function() {
+                var lang = this.value;
+                var mode;
+                switch(lang) {
+                    case 'C':
+                        mode = "text/x-csrc";
+                        break;
+                    case 'C++':
+                        mode = "text/x-c++src";
+                        break;
+                    case 'Java':
+                        mode = "text/x-java";
+                        break;
+                    case 'Python':
+                        mode = "text/x-python";
+                        break;
+                }
+                editor.setOption("mode", mode);
+            });
+        
+            document.getElementById('myform').onsubmit = function(event) {
+                event.preventDefault();
+        
+                var code = editor.getValue();
+                var input = document.getElementById('inputText').value;
+                var lang = document.getElementById('lang').value;
+                var inputRadio = document.querySelector('input[name="inputRadio"]:checked').value;
+        
+                var formData = {
+                    code: code,
+                    input: input,
+                    lang: lang,
+                    inputRadio: inputRadio
+                };
+        
+                fetch('/compilecode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('outputText').innerText = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('outputText').innerText = "An error occurred: " + error;
+                });
+            };
+        </script>
+        
+</body>
+</html>

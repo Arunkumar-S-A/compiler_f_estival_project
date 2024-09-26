@@ -3,6 +3,7 @@ var path = require("path");
 var os = require("os");
 var bodyParser = require("body-parser");
 var compiler = require("compilex");
+const fs = require("fs");
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -113,7 +114,50 @@ app.listen(PORT, function () {
     console.log(`Server running on port ${PORT}`);
 });
 
-
+/*
 compiler.flush(function () {
     console.log("All temporary files flushed!");
 });
+
+compiler.flushSync();
+*/
+
+function emptyDirectory(dirPath, callback) {
+    fs.readdir(dirPath, (err, files) => {
+        if (err) {
+            console.error(`Error reading directory: ${err}`);
+            return callback(err);
+        }
+
+        const unlinkPromises = files.map(file => {
+            return new Promise((resolve, reject) => {
+                const filePath = path.join(dirPath, file);
+                fs.unlink(filePath, err => {
+                    if (err) {
+                        return reject(`Error deleting file: ${filePath}`);
+                    }
+                    resolve();
+                });
+            });
+        });
+
+        Promise.all(unlinkPromises)
+            .then(() => {
+                console.log(`Directory ${dirPath} has been emptied.`);
+                callback(null);  // Indicate success
+            })
+            .catch(err => {
+                console.error(err);
+                callback(err);
+            });
+    });
+}
+
+emptyDirectory('./temp', (err) => {
+    if (err) {
+        console.error('Failed to empty directory:', err);
+    } else {
+        console.log('Directory emptied successfully!');
+    }
+});
+

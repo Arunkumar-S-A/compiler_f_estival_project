@@ -1,0 +1,105 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8; /* Default creamy white */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+#container {
+    display: flex;
+    height: calc(100vh - 60px); 
+    padding-bottom: 10px; /* Adjust height */
+}
+
+#code-area {
+    width: 50%;
+    border-right: 1px solid #000; /* Thick black border */
+    position: relative;
+    padding: 10px;
+}
+
+#editor {
+    height: calc(100% - 30px); /* Adjusted height for the editor */
+}
+
+#options {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 5px; /* Reduced padding for a smaller header */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Keep it above other elements */
+}
+
+#options label{
+    margin: 0; /* Remove margin from the label */
+    padding-right: 5px; /* Adjust padding to your preference */
+}
+
+#options select{
+    margin: 0; /* Remove margin from the select */
+    padding: 5px; /* Optional: adjust padding for the select */
+}
+
+#input-output-area {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+#input {
+    flex: 0 0 100px; /* Fixed height for input */
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+}
+
+#output {
+    flex: 1; /* This will take the remaining space */
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f8f8f8;
+    overflow-y: auto;
+}
+
+.CodeMirror {
+    height: 100%;
+    width: 100%;
+}
+
+h1 {
+    margin: 0; /* Reduced margin for smaller header */
+    font-size: 20px; /* Smaller font size */
+}
+
+h3 {
+    margin: 0;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.dark-theme {
+    background-color: #333;
+    color: #fff;
+}
+
+.dark-theme #options {
+    background: #444;
+    color: #fff;
+}
+
+.dark-theme #input, .dark-theme #output {
+    background-color: #555;
+    border-color: #666;
+}

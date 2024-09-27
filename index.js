@@ -4,8 +4,12 @@ var os = require("os");
 var bodyParser = require("body-parser");
 var compiler = require("compilex");
 const fs = require("fs");
+const cors = require("cors");
 
 var app = express();
+
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -143,8 +147,8 @@ function emptyDirectory(dirPath, callback) {
 
         Promise.all(unlinkPromises)
             .then(() => {
-                console.log(`Directory ${dirPath} has been emptied.`);
-                callback(null);  // Indicate success
+                //console.log(`Directory ${dirPath} has been emptied.`);
+                callback(null);
             })
             .catch(err => {
                 console.error(err);

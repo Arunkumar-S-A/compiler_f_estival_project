@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,102 +10,148 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            transition: background-color 0.3s, color 0.3s;
         }
-
         #container {
             display: flex;
-            width: 100%;
-            height: 100%;
+            height: calc(100vh - 60px);
+            padding-bottom: 10px;
+            margin-top: 50px;
         }
-
         #code-area {
             width: 50%;
-            height: 100%;
-            border-right: 1px solid #ddd;
+            border-right: 1px solid #000;
+            position: relative;
             padding: 10px;
-        }
-
-        #input-output-area {
-            width: 50%;
-            height: 100%;
             display: flex;
             flex-direction: column;
         }
-
+        #editor {
+            flex: 1; /* Make it flexible to fill the available space */
+            overflow: auto; /* Enable scrolling */
+        }
+        #options {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 5px;
+            padding-left: 2%;
+            padding-right: 2%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #input-output-area {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
         #input {
-            flex: 1;
+            flex: 0 0 100px;
             border-bottom: 1px solid #ddd;
             padding: 10px;
-            resize: none;
         }
-
         #output {
             flex: 1;
             border-top: 1px solid #ddd;
             padding: 10px;
             background-color: #f8f8f8;
-            overflow-y: auto;
+            overflow-y: auto; /* Enable vertical scrolling */
         }
-
         .CodeMirror {
             height: 100%;
             width: 100%;
         }
-
-        h3 {
+        h1, h3 {
             margin: 0;
+        }
+        .theme-toggle {
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .dark-theme {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-theme #options {
+            background: #444;
+            color: #fff;
+        }
+        .dark-theme #input, .dark-theme #output {
+            background-color: #555;
+            border-color: #666;
+        }
+        #selectSize{
+            padding-right: 50px;
         }
     </style>
 </head>
-
 <body>
-    <h1>Online IDE</h1>
-    <form id="myform" name="myform" method="post" action="/compilecode">
-        <div id="container">
-            <div id="code-area">
-                <h3>Code</h3>
-                <textarea id="code" name="code"></textarea>
+    <div id="options">
+        <h1>Online IDE</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+        <button class="run-button" type="submit" form="myform">Run</button>
+        <div id="selectSize">
+            <label for="fontSize">Font Size:</label>
+                <select id="fontSize" onchange="changeFontSize()">
+                    <option value="12">12px</option>
+                    <option value="14">14px</option>
+                    <option value="16" selected>16px</option>
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
+                </select>
+        </div>
+        <form id="myform" name="myform" method="post" action="/compilecode">
+            <label for="lang">Language:</label>
+            <select name="lang" id="lang" required>
+                <option value="C">C</option>
+                <option value="C++" selected>C++</option>
+                <option value="Java">Java</option>
+                <option value="Python">Python</option>
+            </select>
+            <label>Compile with Input:</label>
+            <input type="radio" name="inputRadio" value="true" checked> Yes
+            <input type="radio" name="inputRadio" value="false"> No
+        </form>
+    </div>
+    <div id="container">
+        <div id="code-area">
+            <h3>Code</h3>
+            <textarea id="code" name="code" style="display:none;"></textarea>
+            <div id="editor"></div>
+        </div>
+        <div id="input-output-area">
+            <div id="input">
+                <h3>Input</h3>
+                <textarea rows="3" id="inputText" name="inputText" placeholder="Enter input..."></textarea>
             </div>
-            <div id="input-output-area">
-                <div id="input">
-                    <h3>Input (optional)</h3>
-                    <textarea rows="5" id="inputText" name="inputText" placeholder="Optional input"></textarea>
-                </div>
-                <div id="output">
-                    <h3>Output</h3>
-                    <pre id="outputText"></pre>
-                </div>
+            <div id="output">
+                <h3>Output</h3>
+                <pre id="outputText"></pre>
             </div>
         </div>
-        <label for="lang">Language:</label>
-        <select name="lang" id="lang" required>
-            <option value="C">C</option>
-            <option value="C++" selected>C++</option>
-            <option value="Java">Java</option>
-            <option value="Python">Python</option>
-        </select>
-        <br />
-        <label>Compile with Input:</label>
-        <input type="radio" name="inputRadio" value="true" checked> Yes
-        <input type="radio" name="inputRadio" value="false"> No
-        <br /><br />
-        <input type="submit" value="Run" />
-    </form>
+    </div>
     <script>
         var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
             lineNumbers: true,
             mode: "text/x-c++src",
         });
-        document.getElementById('lang').addEventListener('change', function () {
+        document.getElementById('lang').addEventListener('change', function() {
             var lang = this.value;
             var mode;
-            switch (lang) {
+            switch(lang) {
                 case 'C':
                     mode = "text/x-csrc";
                     break;
@@ -122,28 +167,22 @@
             }
             editor.setOption("mode", mode);
         });
-
-        document.getElementById('myform').onsubmit = function (event) {
+    
+        document.getElementById('myform').onsubmit = function(event) {
             event.preventDefault();
-
+    
             var code = editor.getValue();
             var input = document.getElementById('inputText').value;
             var lang = document.getElementById('lang').value;
             var inputRadio = document.querySelector('input[name="inputRadio"]:checked').value;
-
-            const requiresInput = /scanf|cin|getline|gets|fgets|input|sys\.stdin\.read|fileinput|argparse|next|nextLine|nextInt|nextDouble|nextFloat|nextLong|nextShort|nextBoolean|nextByte|readLine/g.test(code);
-            //|System\.in
-            if (requiresInput && inputRadio === 'false') {
-                alert("This code requires input. Please select 'Compile with Input' and provide input.");
-                return;
-            }
+    
             var formData = {
                 code: code,
                 input: input,
                 lang: lang,
                 inputRadio: inputRadio
             };
-
+    
             fetch('/compilecode', {
                 method: 'POST',
                 headers: {
@@ -151,17 +190,26 @@
                 },
                 body: JSON.stringify(formData)
             })
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('outputText').innerText = data;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('outputText').innerText = "An error occurred: " + error;
-                });
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('outputText').innerText = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('outputText').innerText = "An error occurred: " + error;
+            });
         };
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+        }
+
+        function changeFontSize() {
+            var fontSize = document.getElementById('fontSize').value;
+            editor.getWrapperElement().style.fontSize = fontSize + "px";
+            document.getElementById('inputText').style.fontSize = fontSize + "px";
+            document.getElementById('outputText').style.fontSize = fontSize + "px";
+        }
     </script>
-
 </body>
-
 </html>

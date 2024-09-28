@@ -147,7 +147,7 @@ function emptyDirectory(dirPath, callback) {
 
         Promise.all(unlinkPromises)
             .then(() => {
-                //console.log(`Directory ${dirPath} has been emptied.`);
+                console.log(`Directory ${dirPath} has been emptied.`);
                 callback(null);
             })
             .catch(err => {

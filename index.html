@@ -148,6 +148,17 @@
             lineNumbers: true,
             mode: "text/x-c++src",
         });
+        /*
+        editor.on("copy", function(instance, event) {
+            event.preventDefault();
+        });
+        editor.on("cut", function(instance, event) {
+            event.preventDefault();
+        });
+        editor.on("paste", function(instance, event) {
+            event.preventDefault();
+        });
+        */
         document.getElementById('lang').addEventListener('change', function() {
             var lang = this.value;
             var mode;

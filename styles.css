@@ -28,7 +28,7 @@ body {
     left: 0;
     right: 0;
     background: #fff;
-    padding: 5px; /* Reduced padding for a smaller header */
+    padding: 5px; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     z-index: 10; /* Keep it above other elements */
 }

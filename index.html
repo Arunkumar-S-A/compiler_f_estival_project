@@ -186,6 +186,13 @@
             var input = document.getElementById('inputText').value;
             var lang = document.getElementById('lang').value;
             var inputRadio = document.querySelector('input[name="inputRadio"]:checked').value;
+
+            const requiresInput = /scanf|cin|getline|gets|fgets|input|sys\.stdin\.read|fileinput|argparse|next|nextLine|nextInt|nextDouble|nextFloat|nextLong|nextShort|nextBoolean|nextByte|readLine/g.test(code);
+            //|System\.in
+            if (requiresInput && inputRadio === 'false') {
+                alert("This code requires input. Please select 'Compile with Input' and provide input.");
+                return;
+            }
     
             var formData = {
                 code: code,
